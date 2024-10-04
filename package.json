@@ -1,24 +1,26 @@
 {
-  "name": "@moontaiworks/package-template",
+  "name": "yargs-typebox",
   "type": "module",
   "private": false,
   "publishConfig": {
     "access": "public"
   },
-  "version": "2.0.0-pre",
-  "description": "An npm package template.",
-  "author": "moontaiworks",
-  "license": "UNLICENSED",
-  "homepage": "https://moontaiworks.github.io/package-template",
+  "version": "0.0.0-pre",
+  "description": "Use typebox to define your yargs arguments.",
+  "author": "moontai0724",
+  "license": "MIT",
+  "homepage": "https://moontai0724.github.io/yargs-typebox",
   "bugs": {
-    "url": "https://github.com/moontaiworks/package-template/issues"
+    "url": "https://github.com/moontai0724/yargs-typebox/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/moontaiworks/package-template.git"
+    "url": "git+https://github.com/moontai0724/yargs-typebox.git"
   },
   "keywords": [
-    "template"
+    "yargs",
+    "typebox",
+    "type"
   ],
   "files": [
     "build",
