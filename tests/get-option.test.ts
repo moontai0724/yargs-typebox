@@ -88,6 +88,30 @@ describe("string", () => {
   });
 });
 
+describe("union (choices)", () => {
+  it("should pass schema to union transformer", () => {
+    const schema = Type.Union([Type.Literal("foo"), Type.Literal("bar")]);
+    const result = component.getOption(schema);
+    expect(result).toEqual({
+      type: "string",
+      requiresArg: true,
+      choices: ["foo", "bar"],
+    });
+  });
+
+  it("should pass override to union transformer", () => {
+    const schema = Type.Union([Type.Literal("foo"), Type.Literal("bar")]);
+    const override: Options = { alias: "aliased" };
+    const result = component.getOption(schema, override);
+    expect(result).toEqual({
+      type: "string",
+      requiresArg: true,
+      choices: ["foo", "bar"],
+      alias: "aliased",
+    });
+  });
+});
+
 describe("unaccepted type", () => {
   it("should return empty object when type is not supported", () => {
     const schema = Type.BigInt();

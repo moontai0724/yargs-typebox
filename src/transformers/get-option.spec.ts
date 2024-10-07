@@ -4,6 +4,7 @@ import type { Options } from "yargs";
 
 const getArrayOption = vi.fn().mockReturnValue({ type: "mocked" });
 const getBooleanOption = vi.fn().mockReturnValue({ type: "mocked" });
+const getChoiceOption = vi.fn().mockReturnValue({ type: "mocked" });
 const getNumberOption = vi.fn().mockReturnValue({ type: "mocked" });
 const getStringOption = vi.fn().mockReturnValue({ type: "mocked" });
 
@@ -12,6 +13,7 @@ let component: typeof import("./get-option");
 beforeAll(async () => {
   vi.doMock("./array", () => ({ getArrayOption }));
   vi.doMock("./boolean", () => ({ getBooleanOption }));
+  vi.doMock("./choice", () => ({ getChoiceOption }));
   vi.doMock("./number", () => ({ getNumberOption }));
   vi.doMock("./string", () => ({ getStringOption }));
   component = await import("./get-option");
@@ -85,6 +87,23 @@ describe("string", () => {
     const override: Options = { alias: "aliased" };
     const result = component.getOption(schema, override);
     expect(getStringOption).toBeCalledWith(schema, override);
+    expect(result).toEqual({ type: "mocked", alias: "aliased" });
+  });
+});
+
+describe("union", () => {
+  it("should pass schema to union transformer", () => {
+    const schema = Type.Union([Type.Literal("foo"), Type.Literal("bar")]);
+    const result = component.getOption(schema);
+    expect(getChoiceOption).toBeCalledWith(schema, {});
+    expect(result).toEqual({ type: "mocked" });
+  });
+
+  it("should pass override to union transformer", () => {
+    const schema = Type.Union([Type.Literal("foo"), Type.Literal("bar")]);
+    const override: Options = { alias: "aliased" };
+    const result = component.getOption(schema, override);
+    expect(getChoiceOption).toBeCalledWith(schema, override);
     expect(result).toEqual({ type: "mocked", alias: "aliased" });
   });
 });
