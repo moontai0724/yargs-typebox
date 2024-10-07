@@ -39,6 +39,10 @@ export default typedConfig(
       ...tsConfigs.strictTypeChecked,
       ...tsConfigs.stylisticTypeChecked,
     ],
+    rules: {
+      // causing error when passing empty object as initial value
+      "@typescript-eslint/prefer-reduce-type-parameter": "off",
+    },
   },
   {
     plugins: {
