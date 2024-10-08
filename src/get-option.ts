@@ -10,11 +10,13 @@ import {
 } from "@sinclair/typebox";
 import type { Options } from "yargs";
 
-import { getArrayOption } from "./array";
-import { getBooleanOption } from "./boolean";
-import { getChoiceOption } from "./choice";
-import { getNumberOption } from "./number";
-import { getStringOption } from "./string";
+import {
+  getArrayOption,
+  getBooleanOption,
+  getChoiceOption,
+  getNumberOption,
+  getStringOption,
+} from "./transformers";
 
 export function getOption<T extends TSchema, O extends Options = object>(
   schema: T,

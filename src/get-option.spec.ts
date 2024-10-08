@@ -19,11 +19,13 @@ const getStringOption = vi.fn().mockReturnValue({ type: "mocked" });
 let component: typeof import("./get-option");
 
 beforeAll(async () => {
-  vi.doMock("./array", () => ({ getArrayOption }));
-  vi.doMock("./boolean", () => ({ getBooleanOption }));
-  vi.doMock("./choice", () => ({ getChoiceOption }));
-  vi.doMock("./number", () => ({ getNumberOption }));
-  vi.doMock("./string", () => ({ getStringOption }));
+  vi.doMock("./transformers", () => ({
+    getArrayOption,
+    getBooleanOption,
+    getChoiceOption,
+    getNumberOption,
+    getStringOption,
+  }));
   component = await import("./get-option");
 });
 
