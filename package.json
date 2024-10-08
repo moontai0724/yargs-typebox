@@ -9,13 +9,13 @@
   "description": "Use typebox to define your yargs arguments.",
   "author": "moontai0724",
   "license": "MIT",
-  "homepage": "https://moontai0724.github.io/yargs-typebox",
+  "homepage": "https://moontaiworks.github.io/yargs-typebox",
   "bugs": {
-    "url": "https://github.com/moontai0724/yargs-typebox/issues"
+    "url": "https://github.com/moontaiworks/yargs-typebox/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/moontai0724/yargs-typebox.git"
+    "url": "git+https://github.com/moontaiworks/yargs-typebox.git"
   },
   "keywords": [
     "yargs",
