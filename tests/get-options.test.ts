@@ -26,21 +26,52 @@ it("should transform schemas of props in a TObject to yargs options", () => {
   });
   const result = component.getOptions(schema);
   expect(result).toEqual({
-    page: { type: "number", requiresArg: true, description: "page number" },
+    page: {
+      type: "number",
+      requiresArg: true,
+      demandOption: true,
+      description: "page number",
+    },
     size: {
       type: "number",
       requiresArg: false,
+      demandOption: false,
       default: 10,
       description: "page size",
     },
-    query: { type: "string", requiresArg: false },
-    sort: { type: "array", requiresArg: false, choices: ["id", "createdAt"] },
+    query: {
+      type: "string",
+      requiresArg: false,
+      demandOption: false,
+    },
+    sort: {
+      type: "array",
+      requiresArg: false,
+      demandOption: false,
+      choices: ["id", "createdAt"],
+    },
     order: {
       type: "string",
       requiresArg: false,
+      demandOption: false,
       choices: ["asc", "desc"],
       default: "asc",
     },
-    pretty: { type: "boolean", requiresArg: true, description: "pretty print" },
+    pretty: {
+      type: "boolean",
+      requiresArg: true,
+      demandOption: true,
+      description: "pretty print",
+    },
+  });
+});
+
+it("should transform unknown schemas to empty object", () => {
+  const schema = Type.Object({
+    foo: Type.Object({}),
+  });
+  const result = component.getOptions(schema);
+  expect(result).toEqual({
+    foo: {},
   });
 });

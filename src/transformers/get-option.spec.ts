@@ -1,5 +1,13 @@
-import { Type } from "@sinclair/typebox";
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { type TSchema, Type } from "@sinclair/typebox";
+import {
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  type Mock,
+  vi,
+} from "vitest";
 import type { Options } from "yargs";
 
 const getArrayOption = vi.fn().mockReturnValue({ type: "mocked" });
@@ -23,88 +31,51 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe("array", () => {
-  it("should pass schema to array transformer", () => {
-    const schema = Type.Array(Type.Unknown());
+const types = [
+  "array",
+  "boolean",
+  "number",
+  "string",
+  "literal",
+  "union",
+] as const;
+
+const schemas = {
+  array: Type.Array(Type.Unknown()),
+  boolean: Type.Boolean(),
+  number: Type.Number(),
+  string: Type.String(),
+  literal: Type.Literal("foo"),
+  union: Type.Union([Type.Literal("foo"), Type.Literal("bar")]),
+} satisfies Record<(typeof types)[number], TSchema>;
+
+const mocks = {
+  array: getArrayOption,
+  boolean: getBooleanOption,
+  number: getNumberOption,
+  string: getStringOption,
+  literal: getChoiceOption,
+  union: getChoiceOption,
+} satisfies Record<(typeof types)[number], Mock>;
+
+describe.each(types)("should properly handle %s", type => {
+  const schema = schemas[type];
+  const mock = mocks[type];
+
+  it(`should pass schema to ${type} transformer`, () => {
     const result = component.getOption(schema);
-    expect(getArrayOption).toBeCalledWith(schema, {});
+
+    expect(mock).toBeCalledWith(schema, {});
     expect(result).toEqual({ type: "mocked" });
   });
 
-  it("should pass override to array transformer", () => {
-    const schema = Type.Array(Type.Unknown());
-    const override: Options = { alias: "aliased" };
-    const result = component.getOption(schema, override);
-    expect(getArrayOption).toBeCalledWith(schema, override);
-    expect(result).toEqual({ type: "mocked", alias: "aliased" });
-  });
-});
+  it(`should pass overwrites to ${type} transformer`, () => {
+    const override = {
+      alias: "aliased",
+    } satisfies Options;
+    component.getOption(schema, override);
 
-describe("boolean", () => {
-  it("should pass schema to boolean transformer", () => {
-    const schema = Type.Boolean();
-    const result = component.getOption(schema);
-    expect(getBooleanOption).toBeCalledWith(schema, {});
-    expect(result).toEqual({ type: "mocked" });
-  });
-
-  it("should pass override to boolean transformer", () => {
-    const schema = Type.Boolean();
-    const override: Options = { alias: "aliased" };
-    const result = component.getOption(schema, override);
-    expect(getBooleanOption).toBeCalledWith(schema, override);
-    expect(result).toEqual({ type: "mocked", alias: "aliased" });
-  });
-});
-
-describe("number", () => {
-  it("should pass schema to number transformer", () => {
-    const schema = Type.Number();
-    const result = component.getOption(schema);
-    expect(getNumberOption).toBeCalledWith(schema, {});
-    expect(result).toEqual({ type: "mocked" });
-  });
-
-  it("should pass override to number transformer", () => {
-    const schema = Type.Number();
-    const override: Options = { alias: "aliased" };
-    const result = component.getOption(schema, override);
-    expect(getNumberOption).toBeCalledWith(schema, override);
-    expect(result).toEqual({ type: "mocked", alias: "aliased" });
-  });
-});
-
-describe("string", () => {
-  it("should pass schema to string transformer", () => {
-    const schema = Type.String();
-    const result = component.getOption(schema);
-    expect(getStringOption).toBeCalledWith(schema, {});
-    expect(result).toEqual({ type: "mocked" });
-  });
-
-  it("should pass override to string transformer", () => {
-    const schema = Type.String();
-    const override: Options = { alias: "aliased" };
-    const result = component.getOption(schema, override);
-    expect(getStringOption).toBeCalledWith(schema, override);
-    expect(result).toEqual({ type: "mocked", alias: "aliased" });
-  });
-});
-
-describe("union", () => {
-  it("should pass schema to union transformer", () => {
-    const schema = Type.Union([Type.Literal("foo"), Type.Literal("bar")]);
-    const result = component.getOption(schema);
-    expect(getChoiceOption).toBeCalledWith(schema, {});
-    expect(result).toEqual({ type: "mocked" });
-  });
-
-  it("should pass override to union transformer", () => {
-    const schema = Type.Union([Type.Literal("foo"), Type.Literal("bar")]);
-    const override: Options = { alias: "aliased" };
-    const result = component.getOption(schema, override);
-    expect(getChoiceOption).toBeCalledWith(schema, override);
-    expect(result).toEqual({ type: "mocked", alias: "aliased" });
+    expect(mock).toBeCalledWith(schema, override);
   });
 });
 
@@ -117,7 +88,7 @@ describe("unaccepted type", () => {
 
   it("should still be able to override", () => {
     const schema = Type.BigInt();
-    const override: Options = { alias: "aliased" };
+    const override = { alias: "aliased" } satisfies Options;
     const result = component.getOption(schema, override);
     expect(result).toEqual({ alias: "aliased" });
   });

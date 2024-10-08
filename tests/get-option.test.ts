@@ -1,4 +1,4 @@
-import { Type } from "@sinclair/typebox";
+import { type TSchema, Type } from "@sinclair/typebox";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Options } from "yargs";
 
@@ -12,103 +12,85 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe("array", () => {
-  it("should pass schema to array transformer", () => {
-    const schema = Type.Array(Type.String());
+const types = [
+  "array",
+  "boolean",
+  "number",
+  "string",
+  "literal",
+  "union",
+] as const;
+
+const schemas = {
+  array: Type.Array(
+    Type.Union([Type.Literal("id"), Type.Literal("createdAt")]),
+  ),
+  boolean: Type.Boolean({ description: "pretty print" }),
+  number: Type.Number({ description: "page size", default: 10 }),
+  string: Type.String(),
+  literal: Type.Literal(true),
+  union: Type.Union([Type.Literal("asc"), Type.Literal("desc")], {
+    default: "asc",
+  }),
+} satisfies Record<(typeof types)[number], TSchema>;
+
+const expectations = {
+  array: {
+    type: "array",
+    requiresArg: true,
+    demandOption: true,
+    choices: ["id", "createdAt"],
+  },
+  boolean: {
+    type: "boolean",
+    requiresArg: true,
+    demandOption: true,
+    description: "pretty print",
+  },
+  number: {
+    type: "number",
+    requiresArg: false,
+    demandOption: false,
+    default: 10,
+    description: "page size",
+  },
+  string: {
+    type: "string",
+    requiresArg: true,
+    demandOption: true,
+  },
+  literal: {
+    type: "string",
+    requiresArg: true,
+    demandOption: true,
+    choices: [true],
+  },
+  union: {
+    type: "string",
+    requiresArg: false,
+    demandOption: false,
+    choices: ["asc", "desc"],
+    default: "asc",
+  },
+} satisfies Record<(typeof types)[number], Options>;
+
+describe.each(types)("should properly handle %s", type => {
+  const schema = schemas[type];
+  const expected = expectations[type];
+
+  it("should transform", () => {
     const result = component.getOption(schema);
-    expect(result).toEqual({ type: "array", requiresArg: true });
+
+    expect(result).toEqual(expected);
   });
 
-  it("should pass override to array transformer", () => {
-    const schema = Type.Array(Type.String());
-    const override: Options = { alias: "aliased" };
-    const result = component.getOption(schema, override);
-    expect(result).toEqual({
-      type: "array",
-      requiresArg: true,
+  it("should transform with overwrites", () => {
+    const override = {
       alias: "aliased",
-    });
-  });
-});
-
-describe("boolean", () => {
-  it("should pass schema to boolean transformer", () => {
-    const schema = Type.Boolean();
-    const result = component.getOption(schema);
-    expect(result).toEqual({ type: "boolean", requiresArg: true });
-  });
-
-  it("should pass override to boolean transformer", () => {
-    const schema = Type.Boolean();
-    const override: Options = { alias: "aliased" };
+    } satisfies Options;
     const result = component.getOption(schema, override);
-    expect(result).toEqual({
-      type: "boolean",
-      requiresArg: true,
-      alias: "aliased",
-    });
-  });
-});
 
-describe("number", () => {
-  it("should pass schema to number transformer", () => {
-    const schema = Type.Number();
-    const result = component.getOption(schema);
-    expect(result).toEqual({ type: "number", requiresArg: true });
-  });
-
-  it("should pass override to number transformer", () => {
-    const schema = Type.Number();
-    const override: Options = { alias: "aliased" };
-    const result = component.getOption(schema, override);
-    expect(result).toEqual({
-      type: "number",
-      requiresArg: true,
-      alias: "aliased",
-    });
-  });
-});
-
-describe("string", () => {
-  it("should pass schema to string transformer", () => {
-    const schema = Type.String();
-    const result = component.getOption(schema);
-    expect(result).toEqual({ type: "string", requiresArg: true });
-  });
-
-  it("should pass override to string transformer", () => {
-    const schema = Type.String();
-    const override: Options = { alias: "aliased" };
-    const result = component.getOption(schema, override);
-    expect(result).toEqual({
-      type: "string",
-      requiresArg: true,
-      alias: "aliased",
-    });
-  });
-});
-
-describe("union (choices)", () => {
-  it("should pass schema to union transformer", () => {
-    const schema = Type.Union([Type.Literal("foo"), Type.Literal("bar")]);
-    const result = component.getOption(schema);
-    expect(result).toEqual({
-      type: "string",
-      requiresArg: true,
-      choices: ["foo", "bar"],
-    });
-  });
-
-  it("should pass override to union transformer", () => {
-    const schema = Type.Union([Type.Literal("foo"), Type.Literal("bar")]);
-    const override: Options = { alias: "aliased" };
-    const result = component.getOption(schema, override);
-    expect(result).toEqual({
-      type: "string",
-      requiresArg: true,
-      choices: ["foo", "bar"],
-      alias: "aliased",
-    });
+    expect(result).toEqual({ ...expected, alias: "aliased" });
   });
 });
 
@@ -121,7 +103,7 @@ describe("unaccepted type", () => {
 
   it("should still be able to override", () => {
     const schema = Type.BigInt();
-    const override: Options = { alias: "aliased" };
+    const override = { alias: "aliased" } satisfies Options;
     const result = component.getOption(schema, override);
     expect(result).toEqual({ alias: "aliased" });
   });

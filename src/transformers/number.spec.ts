@@ -1,79 +1,44 @@
 import { Type } from "@sinclair/typebox";
-import { expect, it } from "vitest";
+import { beforeAll, beforeEach, expect, it, vi } from "vitest";
 import type { Options } from "yargs";
 
-import { getNumberOption } from "./number";
+const transform = vi.fn().mockReturnValue({});
 
-it("should transform TNumber to yargs option", () => {
+let getNumberOption: typeof import("./number").getNumberOption;
+
+beforeAll(async () => {
+  vi.doMock("./transform", () => ({ transform }));
+
+  getNumberOption = await import("./number").then(m => m.getNumberOption);
+});
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
+it("should call transform to transform", () => {
   const schema = Type.Number();
+  const expectedResponse = { mocked: true };
+  transform.mockReturnValue(expectedResponse);
 
-  const result = getNumberOption(schema);
+  const response = getNumberOption(schema);
 
-  expect(result).toEqual({
-    type: "number",
-    requiresArg: true,
-  });
+  expect(transform).toBeCalledWith("number", schema, {});
+  expect(response).toEqual(expectedResponse);
 });
 
-it("should transform TNumber with truthy default value to yargs option", () => {
-  const schema = Type.Number({ default: 10 });
-
-  const result = getNumberOption(schema);
-
-  expect(result).toEqual({
-    type: "number",
-    requiresArg: false,
-    default: 10,
-  });
-});
-
-it("should transform TNumber with falsy default value to yargs option", () => {
-  const schema = Type.Number({ default: 0 });
-
-  const result = getNumberOption(schema);
-
-  expect(result).toEqual({
-    type: "number",
-    requiresArg: false,
-    default: 0,
-  });
-});
-
-it("should transform TNumber with description to yargs option", () => {
-  const schema = Type.Number({ description: "foo" });
-
-  const result = getNumberOption(schema);
-
-  expect(result).toEqual({
-    type: "number",
-    requiresArg: true,
-    description: "foo",
-  });
-});
-
-it("should transform TNumber with override to yargs option", () => {
+it("should call transform to transform with overwrites", () => {
   const schema = Type.Number();
-  const overwrite: Options = {
-    requiresArg: false,
+  const overwrites = {
     alias: "aliased",
-  };
+  } satisfies Options;
+  const expectedResponse = { mocked: true, ...overwrites };
+  transform.mockReturnValue(expectedResponse);
 
-  const result = getNumberOption(schema, overwrite);
+  const response = getNumberOption(schema, overwrites);
 
-  expect(result).toEqual({
-    type: "number",
-    requiresArg: false,
-    alias: "aliased",
-  });
-});
+  const expectedOverwrites = overwrites satisfies Options;
 
-it("should detect if it is optional", () => {
-  const schema = Type.Optional(Type.Number());
-
-  const result = getNumberOption(schema);
-
-  expect(result).toEqual({
-    type: "number",
-    requiresArg: false,
-  });
+  expect(transform).toBeCalledWith("number", schema, expectedOverwrites);
+  expect(response).toEqual(expectedResponse);
 });

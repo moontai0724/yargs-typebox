@@ -1,120 +1,93 @@
 import { Type } from "@sinclair/typebox";
-import { describe, expect, it } from "vitest";
+import { beforeAll, beforeEach, expect, it, vi } from "vitest";
 import type { Options } from "yargs";
 
-import { getArrayOption } from "./array";
+const isUnionLiteral = vi.fn();
+const tUnionToTuple = vi.fn();
+const transform = vi.fn();
 
-it("should transform TArray to yargs option", () => {
-  const schema = Type.Array(Type.String());
+let getArrayOption: typeof import("./array").getArrayOption;
 
-  const result = getArrayOption(schema);
+beforeAll(async () => {
+  vi.doMock("@/helpers/is-union-literal", () => ({ isUnionLiteral }));
+  vi.doMock("@/helpers/t-union-to-tuple", () => ({ tUnionToTuple }));
+  vi.doMock("./transform", () => ({ transform }));
 
-  expect(result).toEqual({
-    type: "array",
-    requiresArg: true,
-  });
+  getArrayOption = await import("./array").then(m => m.getArrayOption);
 });
 
-describe("should transform TArray with choices to yargs option", () => {
-  it("when item is literal", () => {
-    const schema = Type.Array(Type.Literal("foo"));
-
-    const result = getArrayOption(schema);
-
-    expect(result).toEqual({
-      type: "array",
-      requiresArg: true,
-      choices: ["foo"],
-    });
-  });
-
-  it("when items are union of literal", () => {
-    const schema = Type.Array(
-      Type.Union([Type.Literal("foo"), Type.Literal("bar")]),
-    );
-
-    const result = getArrayOption(schema);
-
-    expect(result).toEqual({
-      type: "array",
-      requiresArg: true,
-      choices: ["foo", "bar"],
-    });
-  });
-
-  it("should not transform when items are union of literal and non-literal", () => {
-    const schema = Type.Array(
-      Type.Union([Type.Literal("foo"), Type.Literal("bar"), Type.Boolean()]),
-    );
-
-    const result = getArrayOption(schema);
-
-    expect(result).toEqual({
-      type: "array",
-      requiresArg: true,
-    });
-  });
+beforeEach(() => {
+  vi.resetAllMocks();
 });
 
-it("should transform TArray with truthy default value to yargs option", () => {
-  const schema = Type.Array(Type.String(), { default: ["foo"] });
+it("should call transform to transform", () => {
+  const schema = Type.Array(Type.Any());
+  const expectedResponse = { mocked: true };
+  transform.mockReturnValue(expectedResponse);
 
-  const result = getArrayOption(schema);
+  const response = getArrayOption(schema);
 
-  expect(result).toEqual({
-    type: "array",
-    requiresArg: false,
-    default: ["foo"],
-  });
+  expect(transform).toBeCalledWith("array", schema, {});
+  expect(response).toEqual(expectedResponse);
 });
 
-it("should transform TArray with falsy default value to yargs option", () => {
-  const schema = Type.Array(Type.String(), { default: [] });
+it("should take its value as choices if it is literal", () => {
+  const schema = Type.Array(Type.Union([Type.Literal("foo")]));
+  const expectedResponse = { mocked: true };
+  transform.mockReturnValue(expectedResponse);
 
-  const result = getArrayOption(schema);
+  const response = getArrayOption(schema);
 
-  expect(result).toEqual({
-    type: "array",
-    requiresArg: false,
-    default: [],
-  });
+  const expectedOverwrites = {
+    choices: ["foo"],
+  } satisfies Options;
+
+  expect(isUnionLiteral).not.toBeCalled();
+  expect(tUnionToTuple).not.toBeCalled();
+  expect(transform).toBeCalledWith("array", schema, expectedOverwrites);
+  expect(response).toEqual(expectedResponse);
 });
 
-it("should transform TArray with description to yargs option", () => {
-  const schema = Type.Array(Type.String(), { description: "foo" });
+it("should take union of literals to tuple of literals as value of choices then call transform to transform", () => {
+  const schema = Type.Array(
+    Type.Union([Type.Literal("foo"), Type.Literal(10), Type.Literal(true)]),
+  );
+  const expectedResponse = { mocked: true };
+  isUnionLiteral.mockReturnValueOnce(true);
+  tUnionToTuple.mockReturnValueOnce(["foo", 10, true]);
+  transform.mockReturnValue(expectedResponse);
 
-  const result = getArrayOption(schema);
+  const response = getArrayOption(schema);
 
-  expect(result).toEqual({
-    type: "array",
-    requiresArg: true,
-    description: "foo",
-  });
+  const expectedOverwrites = {
+    choices: ["foo", 10, true],
+  } satisfies Options;
+
+  expect(isUnionLiteral).toBeCalledWith(schema.items);
+  expect(tUnionToTuple).toBeCalledWith(schema.items);
+  expect(transform).toBeCalledWith("array", schema, expectedOverwrites);
+  expect(response).toEqual(expectedResponse);
 });
 
-it("should transform TArray with override to yargs option", () => {
-  const schema = Type.Array(Type.String());
-  const overwrite: Options = {
-    requiresArg: false,
+it("should call transform with overwrites", () => {
+  const schema = Type.Array(
+    Type.Union([Type.Literal("foo"), Type.Literal(10), Type.Literal(true)]),
+  );
+  const overwrites = {
     alias: "aliased",
-  };
+    choices: ["foo", "bar"],
+  } satisfies Options;
+  const expectedResponse = { mocked: true, ...overwrites };
+  isUnionLiteral.mockReturnValueOnce(true);
+  tUnionToTuple.mockReturnValueOnce(["foo", 10, true]);
+  transform.mockReturnValue(expectedResponse);
 
-  const result = getArrayOption(schema, overwrite);
+  const response = getArrayOption(schema, overwrites);
 
-  expect(result).toEqual({
-    type: "array",
-    requiresArg: false,
-    alias: "aliased",
-  });
-});
+  const expectedOverwrites = overwrites satisfies Options;
 
-it("should detect if it is optional", () => {
-  const schema = Type.Optional(Type.Array(Type.String()));
-
-  const result = getArrayOption(schema);
-
-  expect(result).toEqual({
-    type: "array",
-    requiresArg: false,
-  });
+  expect(isUnionLiteral).toBeCalledWith(schema.items);
+  expect(tUnionToTuple).toBeCalledWith(schema.items);
+  expect(transform).toBeCalledWith("array", schema, expectedOverwrites);
+  expect(response).toEqual(expectedResponse);
 });

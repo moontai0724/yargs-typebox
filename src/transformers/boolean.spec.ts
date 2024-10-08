@@ -1,79 +1,44 @@
 import { Type } from "@sinclair/typebox";
-import { expect, it } from "vitest";
+import { beforeAll, beforeEach, expect, it, vi } from "vitest";
 import type { Options } from "yargs";
 
-import { getBooleanOption } from "./boolean";
+const transform = vi.fn();
 
-it("should transform TBoolean to yargs option", () => {
+let getBooleanOption: typeof import("./boolean").getBooleanOption;
+
+beforeAll(async () => {
+  vi.doMock("./transform", () => ({ transform }));
+
+  getBooleanOption = await import("./boolean").then(m => m.getBooleanOption);
+});
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
+it("should call transform to transform", () => {
   const schema = Type.Boolean();
+  const expectedResponse = { mocked: true };
+  transform.mockReturnValue(expectedResponse);
 
-  const result = getBooleanOption(schema);
+  const response = getBooleanOption(schema);
 
-  expect(result).toEqual({
-    type: "boolean",
-    requiresArg: true,
-  });
+  expect(transform).toBeCalledWith("boolean", schema, {});
+  expect(response).toEqual(expectedResponse);
 });
 
-it("should transform TBoolean with truthy default value to yargs option", () => {
-  const schema = Type.Boolean({ default: true });
-
-  const result = getBooleanOption(schema);
-
-  expect(result).toEqual({
-    type: "boolean",
-    requiresArg: false,
-    default: true,
-  });
-});
-
-it("should transform TBoolean with falsy default value to yargs option", () => {
-  const schema = Type.Boolean({ default: false });
-
-  const result = getBooleanOption(schema);
-
-  expect(result).toEqual({
-    type: "boolean",
-    requiresArg: false,
-    default: false,
-  });
-});
-
-it("should transform TBoolean with description to yargs option", () => {
-  const schema = Type.Boolean({ description: "foo" });
-
-  const result = getBooleanOption(schema);
-
-  expect(result).toEqual({
-    type: "boolean",
-    requiresArg: true,
-    description: "foo",
-  });
-});
-
-it("should transform TBoolean with override to yargs option", () => {
+it("should call transform to transform with overwrites", () => {
   const schema = Type.Boolean();
-  const overwrite: Options = {
-    requiresArg: false,
+  const overwrites = {
     alias: "aliased",
-  };
+  } satisfies Options;
+  const expectedResponse = { mocked: true, alias: "aliased" };
+  transform.mockReturnValue(expectedResponse);
 
-  const result = getBooleanOption(schema, overwrite);
+  const response = getBooleanOption(schema, overwrites);
 
-  expect(result).toEqual({
-    type: "boolean",
-    requiresArg: false,
-    alias: "aliased",
-  });
-});
+  const expectedOverwrites = overwrites satisfies Options;
 
-it("should detect if it is optional", () => {
-  const schema = Type.Optional(Type.Boolean());
-
-  const result = getBooleanOption(schema);
-
-  expect(result).toEqual({
-    type: "boolean",
-    requiresArg: false,
-  });
+  expect(transform).toBeCalledWith("boolean", schema, expectedOverwrites);
+  expect(response).toEqual(expectedResponse);
 });

@@ -1,79 +1,44 @@
 import { Type } from "@sinclair/typebox";
-import { expect, it } from "vitest";
+import { beforeAll, beforeEach, expect, it, vi } from "vitest";
 import type { Options } from "yargs";
 
-import { getStringOption } from "./string";
+const transform = vi.fn().mockReturnValue({});
 
-it("should transform TString to yargs option", () => {
+let getStringOption: typeof import("./string").getStringOption;
+
+beforeAll(async () => {
+  vi.doMock("./transform", () => ({ transform }));
+
+  getStringOption = await import("./string").then(m => m.getStringOption);
+});
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
+it("should call transform to transform", () => {
   const schema = Type.String();
+  const expectedResponse = { mocked: true };
+  transform.mockReturnValue(expectedResponse);
 
-  const result = getStringOption(schema);
+  const response = getStringOption(schema);
 
-  expect(result).toEqual({
-    type: "string",
-    requiresArg: true,
-  });
+  expect(transform).toBeCalledWith("string", schema, {});
+  expect(response).toEqual(expectedResponse);
 });
 
-it("should transform TString with truthy default value to yargs option", () => {
-  const schema = Type.String({ default: "foo" });
-
-  const result = getStringOption(schema);
-
-  expect(result).toEqual({
-    type: "string",
-    requiresArg: false,
-    default: "foo",
-  });
-});
-
-it("should transform TString with falsy default value to yargs option", () => {
-  const schema = Type.String({ default: "" });
-
-  const result = getStringOption(schema);
-
-  expect(result).toEqual({
-    type: "string",
-    requiresArg: false,
-    default: "",
-  });
-});
-
-it("should transform TString with description to yargs option", () => {
-  const schema = Type.String({ description: "foo" });
-
-  const result = getStringOption(schema);
-
-  expect(result).toEqual({
-    type: "string",
-    requiresArg: true,
-    description: "foo",
-  });
-});
-
-it("should transform TString with override to yargs option", () => {
+it("should call transform to transform with overwrites", () => {
   const schema = Type.String();
-  const overwrite: Options = {
-    requiresArg: false,
+  const overwrites = {
     alias: "aliased",
-  };
+  } satisfies Options;
+  const expectedResponse = { mocked: true, ...overwrites };
+  transform.mockReturnValue(expectedResponse);
 
-  const result = getStringOption(schema, overwrite);
+  const response = getStringOption(schema, overwrites);
 
-  expect(result).toEqual({
-    type: "string",
-    requiresArg: false,
-    alias: "aliased",
-  });
-});
+  const expectedOverwrites = overwrites satisfies Options;
 
-it("should detect if it is optional", () => {
-  const schema = Type.Optional(Type.String());
-
-  const result = getStringOption(schema);
-
-  expect(result).toEqual({
-    type: "string",
-    requiresArg: false,
-  });
+  expect(transform).toBeCalledWith("string", schema, expectedOverwrites);
+  expect(response).toEqual(expectedResponse);
 });

@@ -1,66 +1,45 @@
 import {
+  type Static,
   type TArray,
   type TLiteral,
   type TSchema,
   type TUnion,
   TypeGuard,
+  type UnionToTuple,
 } from "@sinclair/typebox";
 import type { Options } from "yargs";
 
-function getLiteralValue(schema: TLiteral): string {
-  return schema.const.toString();
-}
+import { isUnionLiteral } from "@/helpers/is-union-literal";
+import { tUnionToTuple } from "@/helpers/t-union-to-tuple";
 
-function getValue(schema: TSchema): string | undefined {
-  if (TypeGuard.IsLiteral(schema)) return getLiteralValue(schema);
+import { transform } from "./transform";
 
-  return undefined;
-}
+type GetChoices<T extends TSchema> = T extends TLiteral
+  ? [Static<T>]
+  : T extends TUnion<TLiteral[]>
+    ? UnionToTuple<Static<T>>
+    : never;
 
-function getUnionValues(schema: TUnion): string[] | undefined {
-  const values: string[] = [];
-
-  const isAllValid = schema.anyOf.every(item => {
-    const value = getValue(item);
-    if (!value) return false;
-
-    values.push(value);
-
-    return true;
-  });
-
-  if (!isAllValid) return undefined;
-
-  return values;
-}
-
-function getChoices(schema: TSchema): string[] | undefined {
-  if (TypeGuard.IsLiteral(schema)) return [getLiteralValue(schema)];
-  if (TypeGuard.IsUnion(schema)) return getUnionValues(schema);
+function getChoices<T extends TSchema>(schema: T): GetChoices<T>;
+function getChoices(schema: TSchema) {
+  if (TypeGuard.IsLiteral(schema)) return [schema.const];
+  if (isUnionLiteral(schema)) return tUnionToTuple(schema);
 
   return undefined;
 }
 
-export function getArrayOption(
-  schema: TArray,
-  override: Options = {},
-): Options {
-  const hasDefaultValue = schema.default !== undefined;
-  const options = {
-    type: "array" as const,
-    requiresArg: !TypeGuard.IsOptional(schema) && !hasDefaultValue,
+export function getArrayOption<S extends TArray, O extends Options = object>(
+  schema: S,
+  overwrites: O = {} as never,
+) {
+  const choices = getChoices(schema.items) as GetChoices<S["items"]>;
+  const mergedOverwrites = {
+    // @ts-expect-error We expect this type to be calculated, but seems it's too
+    // long for ts. If it been proved to be not nessesary, we can remove this
+    // type inference.
+    choices,
+    ...overwrites,
   };
 
-  if (hasDefaultValue)
-    Object.assign(options, { default: schema.default as unknown[] });
-  if (schema.description)
-    Object.assign(options, { description: schema.description });
-
-  const choices = getChoices(schema.items);
-
-  if (choices) Object.assign(options, { choices });
-
-  Object.assign(options, override);
-
-  return options;
+  return transform("array", schema, mergedOverwrites);
 }

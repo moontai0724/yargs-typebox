@@ -1,29 +1,22 @@
-import { type TLiteral, type TUnion, TypeGuard } from "@sinclair/typebox";
+import { type Static, type TLiteral, type TUnion } from "@sinclair/typebox";
 import type { Options } from "yargs";
 
-export function getChoiceOption(
-  schema: TUnion<TLiteral[]>,
-  override: Options = {},
-): Options {
-  const hasDefaultValue = schema.default !== undefined;
-  const options = {
-    type: "string" as const,
-    requiresArg: !TypeGuard.IsOptional(schema) && !hasDefaultValue,
-    choices: schema.anyOf.map(item => {
-      if (!TypeGuard.IsLiteral(item)) {
-        throw new Error("Choices must contain only literal values");
-      }
+import { isUnionLiteral } from "@/helpers/is-union-literal";
+import { tUnionToTuple } from "@/helpers/t-union-to-tuple";
 
-      return item.const.toString();
-    }),
+import { transform } from "./transform";
+
+export function getChoiceOption<
+  S extends TLiteral | TUnion<TLiteral[]>,
+  O extends Options = object,
+>(schema: S, overwrites: O = {} as never) {
+  const choices = isUnionLiteral(schema)
+    ? tUnionToTuple(schema)
+    : [schema.const as Static<S>];
+  const mergedOverwrites = {
+    choices,
+    ...overwrites,
   };
 
-  if (hasDefaultValue)
-    Object.assign(options, { default: schema.default as string });
-  if (schema.description)
-    Object.assign(options, { description: schema.description });
-
-  Object.assign(options, override);
-
-  return options;
+  return transform("string", schema, mergedOverwrites);
 }
