@@ -38,7 +38,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: moontai0724/yargs-typebox
+          slug: moontaiworks/yargs-typebox
           files: ./coverage/cobertura-coverage.xml
           verbose: true
 
