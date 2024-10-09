@@ -60,46 +60,6 @@ describe("default", () => {
   });
 });
 
-describe("requiresArg", () => {
-  it("should take requiresArg if present", () => {
-    const schema = Type.Any({
-      requiresArg: true,
-    });
-    const expected = basedOnBasic({
-      type: "string",
-      requiresArg: true,
-    }) satisfies Options;
-
-    const result = getAnyOption("string", schema);
-
-    expect(result).toEqual(expected);
-  });
-
-  it("should set requiresArg to true if it is not present but required", () => {
-    const schema = Type.Any();
-    const expected = {
-      type: "string",
-      requiresArg: true,
-    } satisfies Options;
-
-    const result = getAnyOption("string", schema);
-
-    expect(result).toMatchObject(expected);
-  });
-
-  it("should set requiresArg to false if it is not present and not required", () => {
-    const schema = Type.Optional(Type.Any());
-    const expected = {
-      type: "string",
-      requiresArg: false,
-    } satisfies Options;
-
-    const result = getAnyOption("string", schema);
-
-    expect(result).toMatchObject(expected);
-  });
-});
-
 describe("demandOption", () => {
   it("should take demandOption if present", () => {
     const schema = Type.Any({
@@ -241,6 +201,7 @@ const passthroughOptions = [
   "implies",
   "nargs",
   "normalize",
+  "requiresArg",
   "skipValidation",
 ] as const;
 
@@ -261,13 +222,13 @@ describe("passthrough options", () => {
 it("should be able to overwrite given options", () => {
   const schema = Type.Any();
   const overwrites = {
-    requiresArg: false,
+    demandOption: false,
     describe: "Something",
     choices: ["foo", "bar"],
   } satisfies Options;
   const expected = basedOnBasic({
     type: "string",
-    requiresArg: false,
+    demandOption: false,
     describe: "Something",
     choices: ["foo", "bar"],
   }) satisfies Options;

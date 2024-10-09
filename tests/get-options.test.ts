@@ -30,38 +30,32 @@ it("should transform schemas of props in a TObject to yargs options", () => {
   expect(result).toEqual({
     page: {
       type: "number",
-      requiresArg: true,
       demandOption: true,
       describe: "page number",
     },
     size: {
       type: "number",
-      requiresArg: false,
       demandOption: false,
       default: 10,
       describe: "page size",
     },
     query: {
       type: "string",
-      requiresArg: false,
       demandOption: false,
     },
     sort: {
       type: "array",
-      requiresArg: false,
       demandOption: false,
       choices: ["id", "createdAt"],
     },
     order: {
       type: "string",
-      requiresArg: false,
       demandOption: false,
       choices: ["asc", "desc"],
       default: "asc",
     },
     pretty: {
       type: "boolean",
-      requiresArg: true,
       demandOption: true,
       describe: "pretty print",
     },

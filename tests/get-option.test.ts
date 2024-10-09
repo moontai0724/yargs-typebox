@@ -39,37 +39,31 @@ const schemas = {
 const expectations = {
   array: {
     type: "array",
-    requiresArg: true,
     demandOption: true,
     choices: ["id", "createdAt"],
   },
   boolean: {
     type: "boolean",
-    requiresArg: true,
     demandOption: true,
     describe: "pretty print",
   },
   number: {
     type: "number",
-    requiresArg: false,
     demandOption: false,
     default: 10,
     describe: "page size",
   },
   string: {
     type: "string",
-    requiresArg: true,
     demandOption: true,
   },
   literal: {
     type: "string",
-    requiresArg: true,
     demandOption: true,
     choices: [true],
   },
   union: {
     type: "string",
-    requiresArg: false,
     demandOption: false,
     choices: ["asc", "desc"],
     default: "asc",

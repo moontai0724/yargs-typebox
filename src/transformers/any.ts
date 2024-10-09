@@ -33,12 +33,12 @@ export function getAnyOption<
     implies: schema.implies,
     nargs: schema.nargs,
     normalize: schema.normalize,
+    requiresArg: schema.requiresArg,
     skipValidation: schema.skipValidation,
     default: defaultValue,
   } satisfies Options;
   // those values that might be able to come from multiple sources
   const overrides = {
-    requiresArg: schema.requiresArg ?? required,
     demandOption: schema.demandOption ?? required,
     deprecated: schema.deprecated ?? schema.deprecate,
     describe: schema.description ?? schema.describe ?? schema.desc,
