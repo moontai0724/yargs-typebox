@@ -10,6 +10,7 @@ import {
 } from "vitest";
 import type { Options } from "yargs";
 
+const getAnyOption = vi.fn().mockReturnValue({ type: "mocked" });
 const getArrayOption = vi.fn().mockReturnValue({ type: "mocked" });
 const getBooleanOption = vi.fn().mockReturnValue({ type: "mocked" });
 const getChoiceOption = vi.fn().mockReturnValue({ type: "mocked" });
@@ -20,6 +21,7 @@ let component: typeof import("./get-option");
 
 beforeAll(async () => {
   vi.doMock("./transformers", () => ({
+    getAnyOption,
     getArrayOption,
     getBooleanOption,
     getChoiceOption,
@@ -82,16 +84,22 @@ describe.each(types)("should properly handle %s", type => {
 });
 
 describe("unaccepted type", () => {
-  it("should return empty object when type is not supported", () => {
-    const schema = Type.BigInt();
+  const schema = Type.BigInt();
+  const mock = getAnyOption;
+
+  it(`should pass schema to transformer`, () => {
     const result = component.getOption(schema);
-    expect(result).toEqual({});
+
+    expect(mock).toBeCalledWith(undefined, schema, {});
+    expect(result).toEqual({ type: "mocked" });
   });
 
-  it("should still be able to override", () => {
-    const schema = Type.BigInt();
-    const override = { alias: "aliased" } satisfies Options;
-    const result = component.getOption(schema, override);
-    expect(result).toEqual({ alias: "aliased" });
+  it(`should pass overwrites to transformer`, () => {
+    const override = {
+      alias: "aliased",
+    } satisfies Options;
+    component.getOption(schema, override);
+
+    expect(mock).toBeCalledWith(undefined, schema, override);
   });
 });

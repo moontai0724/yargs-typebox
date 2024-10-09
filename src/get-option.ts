@@ -11,6 +11,7 @@ import {
 import type { Options } from "yargs";
 
 import {
+  getAnyOption,
   getArrayOption,
   getBooleanOption,
   getChoiceOption,
@@ -41,5 +42,5 @@ export function getOption(schema: TSchema, overwrites: Options = {}) {
     return getChoiceOption(schema, overwrites);
   if (TypeGuard.IsArray(schema)) return getArrayOption(schema, overwrites);
 
-  return overwrites;
+  return getAnyOption(undefined, schema, overwrites);
 }

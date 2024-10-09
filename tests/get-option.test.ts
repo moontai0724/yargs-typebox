@@ -2,6 +2,8 @@ import { type TSchema, Type } from "@sinclair/typebox";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Options } from "yargs";
 
+import { basedOnBasic } from "./helpers/based-on-properties";
+
 let component: typeof import("@/index");
 
 beforeAll(async () => {
@@ -98,13 +100,13 @@ describe("unaccepted type", () => {
   it("should return empty object when type is not supported", () => {
     const schema = Type.BigInt();
     const result = component.getOption(schema);
-    expect(result).toEqual({});
+    expect(result).toEqual(basedOnBasic({}));
   });
 
   it("should still be able to override", () => {
     const schema = Type.BigInt();
     const override = { alias: "aliased" } satisfies Options;
     const result = component.getOption(schema, override);
-    expect(result).toEqual({ alias: "aliased" });
+    expect(result).toEqual(basedOnBasic({ alias: "aliased" }));
   });
 });

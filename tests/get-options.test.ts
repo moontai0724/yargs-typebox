@@ -1,6 +1,8 @@
 import { Type } from "@sinclair/typebox";
 import { beforeAll, beforeEach, expect, it, vi } from "vitest";
 
+import { basedOnBasic } from "./helpers/based-on-properties";
+
 let component: typeof import("@/index");
 
 beforeAll(async () => {
@@ -72,6 +74,6 @@ it("should transform unknown schemas to empty object", () => {
   });
   const result = component.getOptions(schema);
   expect(result).toEqual({
-    foo: {},
+    foo: basedOnBasic({}),
   });
 });
