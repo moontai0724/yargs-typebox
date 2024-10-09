@@ -12,7 +12,7 @@ import type { Options } from "yargs";
 import { isUnionLiteral } from "@/helpers/is-union-literal";
 import { tUnionToTuple } from "@/helpers/t-union-to-tuple";
 
-import { transform } from "./transform";
+import { getAnyOption } from "./any";
 
 type GetChoices<T extends TSchema> = T extends TLiteral
   ? [Static<T>]
@@ -41,5 +41,5 @@ export function getArrayOption<S extends TArray, O extends Options = object>(
     ...overwrites,
   };
 
-  return transform("array", schema, mergedOverwrites);
+  return getAnyOption("array", schema, mergedOverwrites);
 }

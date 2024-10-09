@@ -1,17 +1,14 @@
 import { type Static, type TSchema, TypeGuard } from "@sinclair/typebox";
 import type { Options } from "yargs";
 
-export type SchemaType = "string" | "number" | "boolean" | "array";
-
 /**
  * Transform TypeBox schema and options appended in schema to yargs options.
  * @param type type of the yargs option
  * @param schema TypeBox schema to transform
- * @returns applicable yargs options
  * @see https://yargs.js.org/docs/#api-reference-optionskey-opt
  */
-export function transform<
-  T extends SchemaType,
+export function getAnyOption<
+  T extends Options["type"] | undefined,
   S extends TSchema & Options,
   O extends Options = object,
 >(type: T, schema: S, overwrites: O = {} as never) {

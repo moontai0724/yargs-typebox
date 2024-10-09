@@ -4,7 +4,7 @@ import type { Options } from "yargs";
 import { isUnionLiteral } from "@/helpers/is-union-literal";
 import { tUnionToTuple } from "@/helpers/t-union-to-tuple";
 
-import { transform } from "./transform";
+import { getAnyOption } from "./any";
 
 export function getChoiceOption<
   S extends TLiteral | TUnion<TLiteral[]>,
@@ -18,5 +18,5 @@ export function getChoiceOption<
     ...overwrites,
   };
 
-  return transform("string", schema, mergedOverwrites);
+  return getAnyOption("string", schema, mergedOverwrites);
 }

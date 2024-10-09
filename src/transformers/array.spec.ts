@@ -4,14 +4,14 @@ import type { Options } from "yargs";
 
 const isUnionLiteral = vi.fn();
 const tUnionToTuple = vi.fn();
-const transform = vi.fn();
+const getAnyOption = vi.fn();
 
 let getArrayOption: typeof import("./array").getArrayOption;
 
 beforeAll(async () => {
   vi.doMock("@/helpers/is-union-literal", () => ({ isUnionLiteral }));
   vi.doMock("@/helpers/t-union-to-tuple", () => ({ tUnionToTuple }));
-  vi.doMock("./transform", () => ({ transform }));
+  vi.doMock("./any", () => ({ getAnyOption }));
 
   getArrayOption = await import("./array").then(m => m.getArrayOption);
 });
@@ -20,21 +20,21 @@ beforeEach(() => {
   vi.resetAllMocks();
 });
 
-it("should call transform to transform", () => {
+it("should call getAnyOption to transform", () => {
   const schema = Type.Array(Type.Any());
   const expectedResponse = { mocked: true };
-  transform.mockReturnValue(expectedResponse);
+  getAnyOption.mockReturnValue(expectedResponse);
 
   const response = getArrayOption(schema);
 
-  expect(transform).toBeCalledWith("array", schema, {});
+  expect(getAnyOption).toBeCalledWith("array", schema, {});
   expect(response).toEqual(expectedResponse);
 });
 
 it("should take its value as choices if it is literal", () => {
   const schema = Type.Array(Type.Union([Type.Literal("foo")]));
   const expectedResponse = { mocked: true };
-  transform.mockReturnValue(expectedResponse);
+  getAnyOption.mockReturnValue(expectedResponse);
 
   const response = getArrayOption(schema);
 
@@ -44,18 +44,18 @@ it("should take its value as choices if it is literal", () => {
 
   expect(isUnionLiteral).not.toBeCalled();
   expect(tUnionToTuple).not.toBeCalled();
-  expect(transform).toBeCalledWith("array", schema, expectedOverwrites);
+  expect(getAnyOption).toBeCalledWith("array", schema, expectedOverwrites);
   expect(response).toEqual(expectedResponse);
 });
 
-it("should take union of literals to tuple of literals as value of choices then call transform to transform", () => {
+it("should take union of literals to tuple of literals as value of choices then call getAnyOption to transform", () => {
   const schema = Type.Array(
     Type.Union([Type.Literal("foo"), Type.Literal(10), Type.Literal(true)]),
   );
   const expectedResponse = { mocked: true };
   isUnionLiteral.mockReturnValueOnce(true);
   tUnionToTuple.mockReturnValueOnce(["foo", 10, true]);
-  transform.mockReturnValue(expectedResponse);
+  getAnyOption.mockReturnValue(expectedResponse);
 
   const response = getArrayOption(schema);
 
@@ -65,11 +65,11 @@ it("should take union of literals to tuple of literals as value of choices then 
 
   expect(isUnionLiteral).toBeCalledWith(schema.items);
   expect(tUnionToTuple).toBeCalledWith(schema.items);
-  expect(transform).toBeCalledWith("array", schema, expectedOverwrites);
+  expect(getAnyOption).toBeCalledWith("array", schema, expectedOverwrites);
   expect(response).toEqual(expectedResponse);
 });
 
-it("should call transform with overwrites", () => {
+it("should call getAnyOption with overwrites", () => {
   const schema = Type.Array(
     Type.Union([Type.Literal("foo"), Type.Literal(10), Type.Literal(true)]),
   );
@@ -80,7 +80,7 @@ it("should call transform with overwrites", () => {
   const expectedResponse = { mocked: true, ...overwrites };
   isUnionLiteral.mockReturnValueOnce(true);
   tUnionToTuple.mockReturnValueOnce(["foo", 10, true]);
-  transform.mockReturnValue(expectedResponse);
+  getAnyOption.mockReturnValue(expectedResponse);
 
   const response = getArrayOption(schema, overwrites);
 
@@ -88,6 +88,6 @@ it("should call transform with overwrites", () => {
 
   expect(isUnionLiteral).toBeCalledWith(schema.items);
   expect(tUnionToTuple).toBeCalledWith(schema.items);
-  expect(transform).toBeCalledWith("array", schema, expectedOverwrites);
+  expect(getAnyOption).toBeCalledWith("array", schema, expectedOverwrites);
   expect(response).toEqual(expectedResponse);
 });

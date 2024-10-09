@@ -1,23 +1,18 @@
-import { Type, type UnionToTuple } from "@sinclair/typebox";
+import { Type } from "@sinclair/typebox";
 import { describe, expect, it } from "vitest";
 import type { Options } from "yargs";
 
 import { basedOnBasic, basedOnOptional } from "~/helpers/based-on-properties";
 
-import { type SchemaType, transform } from "./transform";
+import { getAnyOption } from "./any";
 
-const schemaTypes = [
-  "string",
-  "number",
-  "boolean",
-  "array",
-] satisfies UnionToTuple<SchemaType>;
+const schemaTypes = ["string", "number", "boolean", "array"] as const;
 
 it.each(schemaTypes)(
   "should transform %s type schema to yargs option",
   type => {
     const schema = Type.Any();
-    const result = transform(type, schema);
+    const result = getAnyOption(type, schema);
     const expected = basedOnBasic({
       type,
     }) satisfies Options;
@@ -32,7 +27,7 @@ it("should check if it is marked as optional", () => {
     type: "string",
   }) satisfies Options;
 
-  const result = transform("string", schema);
+  const result = getAnyOption("string", schema);
 
   expect(result).toEqual(expected);
 });
@@ -47,7 +42,7 @@ describe("default", () => {
       default: true,
     }) satisfies Options;
 
-    const result = transform("string", schema);
+    const result = getAnyOption("string", schema);
 
     expect(result).toEqual(expected);
   });
@@ -60,7 +55,7 @@ describe("default", () => {
       type: "string",
       default: null,
     }) satisfies Options;
-    const result = transform("string", schema);
+    const result = getAnyOption("string", schema);
     expect(result).toEqual(expected);
   });
 });
@@ -75,7 +70,7 @@ describe("requiresArg", () => {
       requiresArg: true,
     }) satisfies Options;
 
-    const result = transform("string", schema);
+    const result = getAnyOption("string", schema);
 
     expect(result).toEqual(expected);
   });
@@ -87,7 +82,7 @@ describe("requiresArg", () => {
       requiresArg: true,
     } satisfies Options;
 
-    const result = transform("string", schema);
+    const result = getAnyOption("string", schema);
 
     expect(result).toMatchObject(expected);
   });
@@ -99,7 +94,7 @@ describe("requiresArg", () => {
       requiresArg: false,
     } satisfies Options;
 
-    const result = transform("string", schema);
+    const result = getAnyOption("string", schema);
 
     expect(result).toMatchObject(expected);
   });
@@ -115,7 +110,7 @@ describe("demandOption", () => {
       demandOption: true,
     }) satisfies Options;
 
-    const result = transform("string", schema);
+    const result = getAnyOption("string", schema);
 
     expect(result).toEqual(expected);
   });
@@ -127,7 +122,7 @@ describe("demandOption", () => {
       demandOption: true,
     } satisfies Options;
 
-    const result = transform("string", schema);
+    const result = getAnyOption("string", schema);
 
     expect(result).toMatchObject(expected);
   });
@@ -139,7 +134,7 @@ describe("demandOption", () => {
       demandOption: false,
     } satisfies Options;
 
-    const result = transform("string", schema);
+    const result = getAnyOption("string", schema);
 
     expect(result).toMatchObject(expected);
   });
@@ -155,7 +150,7 @@ describe("deprecated", () => {
       deprecated: "Something",
     }) satisfies Options;
 
-    const result = transform("string", schema);
+    const result = getAnyOption("string", schema);
 
     expect(result).toEqual(expected);
   });
@@ -169,7 +164,7 @@ describe("deprecated", () => {
       deprecated: "Something",
     }) satisfies Options;
 
-    const result = transform("string", schema);
+    const result = getAnyOption("string", schema);
 
     expect(result).toEqual(expected);
   });
@@ -184,7 +179,7 @@ describe("deprecated", () => {
       deprecated: "Something else",
     }) satisfies Options;
 
-    const result = transform("string", schema);
+    const result = getAnyOption("string", schema);
 
     expect(result).toEqual(expected);
   });
@@ -200,7 +195,7 @@ describe("description", () => {
       describe: "Something",
     }) satisfies Options;
 
-    const result = transform("string", schema);
+    const result = getAnyOption("string", schema);
 
     expect(result).toEqual(expected);
   });
@@ -213,7 +208,7 @@ describe("description", () => {
       describe: "Something",
     }) satisfies Options;
 
-    const result = transform("string", schema);
+    const result = getAnyOption("string", schema);
 
     expect(result).toEqual(expected);
   });
@@ -226,7 +221,7 @@ describe("description", () => {
       describe: "Something",
     }) satisfies Options;
 
-    const result = transform("string", schema);
+    const result = getAnyOption("string", schema);
 
     expect(result).toEqual(expected);
   });
@@ -257,7 +252,7 @@ describe("passthrough options", () => {
       [option]: true,
     }) satisfies Options;
 
-    const result = transform("string", schema, { [option]: true });
+    const result = getAnyOption("string", schema, { [option]: true });
 
     expect(result).toEqual(expected);
   });
@@ -277,7 +272,7 @@ it("should be able to overwrite given options", () => {
     choices: ["foo", "bar"],
   }) satisfies Options;
 
-  const result = transform("string", schema, overwrites);
+  const result = getAnyOption("string", schema, overwrites);
 
   expect(result).toEqual(expected);
 });
