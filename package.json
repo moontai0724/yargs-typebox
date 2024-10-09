@@ -1,24 +1,26 @@
 {
-  "name": "@moontaiworks/package-template",
+  "name": "yargs-typebox",
   "type": "module",
   "private": false,
   "publishConfig": {
     "access": "public"
   },
-  "version": "2.0.0-pre",
-  "description": "An npm package template.",
-  "author": "moontaiworks",
-  "license": "UNLICENSED",
-  "homepage": "https://moontaiworks.github.io/package-template",
+  "version": "0.0.0",
+  "description": "Use typebox to define your yargs arguments.",
+  "author": "moontai0724",
+  "license": "MIT",
+  "homepage": "https://moontaiworks.github.io/yargs-typebox",
   "bugs": {
-    "url": "https://github.com/moontaiworks/package-template/issues"
+    "url": "https://github.com/moontaiworks/yargs-typebox/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/moontaiworks/package-template.git"
+    "url": "git+https://github.com/moontaiworks/yargs-typebox.git"
   },
   "keywords": [
-    "template"
+    "yargs",
+    "typebox",
+    "type"
   ],
   "files": [
     "build",
@@ -49,8 +51,10 @@
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
     "@eslint/js": "^9.11.1",
+    "@sinclair/typebox": "^0.32.35",
     "@types/eslint__js": "^8.42.3",
     "@types/node": "^20.11.0",
+    "@types/yargs": "^17.0.33",
     "@typescript-eslint/parser": "^8.8.0",
     "@vitest/coverage-v8": "^2.1.1",
     "eslint": "^9.11.1",
@@ -68,6 +72,11 @@
     "typescript": "~5.5",
     "typescript-eslint": "^8.7.0",
     "vite": "^5.4.8",
-    "vitest": "^2.1.1"
+    "vitest": "^2.1.1",
+    "yargs": "^17.0.0"
+  },
+  "peerDependencies": {
+    "@sinclair/typebox": "^0.32.35",
+    "yargs": "^17.0.0"
   }
 }

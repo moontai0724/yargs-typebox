@@ -7,7 +7,7 @@ import globals from "globals";
 import { config as typedConfig, configs as tsConfigs } from "typescript-eslint";
 
 export default typedConfig(
-  { ignores: ["node_modules", "dist", "build", "coverage"] },
+  { ignores: ["node_modules", "dist", "build", "docs", "coverage"] },
   {
     files: ["src/**/*.ts"],
     languageOptions: {
@@ -39,6 +39,10 @@ export default typedConfig(
       ...tsConfigs.strictTypeChecked,
       ...tsConfigs.stylisticTypeChecked,
     ],
+    rules: {
+      // causing error when passing empty object as initial value
+      "@typescript-eslint/prefer-reduce-type-parameter": "off",
+    },
   },
   {
     plugins: {
