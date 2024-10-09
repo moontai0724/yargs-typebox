@@ -19,6 +19,25 @@ import {
   getStringOption,
 } from "./transformers";
 
+/**
+ * Handy function to get yargs options from TypeBox schema without having to
+ * manually call corresponding transformers.
+ *
+ * Handlable TypeBox schema types:
+ * - `TNumber`
+ * - `TString`
+ * - `TBoolean`
+ * - `TArray`
+ * - `TLiteral`
+ * - `TUnion<TLiteral[]>`
+ *
+ * Schemas that are not supported will still be able to transform, but only pick
+ * supported yargs properties from schema.
+ *
+ * @param schema Any TypeBox schema that could be transformed to yargs options.
+ * @param overwrites overwrites for yargs options result
+ * @returns applicable yargs options in schema and overwrites
+ */
 export function getOption<T extends TSchema, O extends Options = object>(
   schema: T,
   overwrites?: O,

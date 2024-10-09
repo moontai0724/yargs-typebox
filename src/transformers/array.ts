@@ -28,6 +28,18 @@ function getChoices(schema: TSchema) {
   return undefined;
 }
 
+/**
+ * Transform TypeBox TArray schema and options appended in schema to yargs
+ * options.
+ *
+ * If the array items is Literal or Union of Literal, the choices will be set to
+ * the const value of the Literal or Union of Literal. Otherwise, the choices
+ * will be undefined.
+ *
+ * @param schema TypeBox TArray schema to transform
+ * @param overwrites overwrites for yargs options result
+ * @returns applicable yargs options in schema and overwrites
+ */
 export function getArrayOption<S extends TArray, O extends Options = object>(
   schema: S,
   overwrites: O = {} as never,

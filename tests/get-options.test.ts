@@ -23,6 +23,7 @@ it("should transform schemas of props in a TObject to yargs options", () => {
     ),
     order: Type.Union([Type.Literal("asc"), Type.Literal("desc")], {
       default: "asc",
+      implies: ["sort"],
     }),
     pretty: Type.Boolean({ description: "pretty print" }),
   });
@@ -53,6 +54,7 @@ it("should transform schemas of props in a TObject to yargs options", () => {
       demandOption: false,
       choices: ["asc", "desc"],
       default: "asc",
+      implies: ["sort"],
     },
     pretty: {
       type: "boolean",

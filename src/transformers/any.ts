@@ -5,6 +5,8 @@ import type { Options } from "yargs";
  * Transform TypeBox schema and options appended in schema to yargs options.
  * @param type type of the yargs option
  * @param schema TypeBox schema to transform
+ * @param overwrites overwrites for yargs options result
+ * @returns applicable yargs options in schema and overwrites
  * @see https://yargs.js.org/docs/#api-reference-optionskey-opt
  */
 export function getAnyOption<

@@ -6,6 +6,14 @@ import { tUnionToTuple } from "@/helpers/t-union-to-tuple";
 
 import { getAnyOption } from "./any";
 
+/**
+ * Transform TypeBox TLiteral or TUnion of TLiteral schema and options appended
+ * in schema to yargs options.
+ *
+ * @param schema TypeBox TLiteral or TUnion of TLiteral schema to transform
+ * @param overwrites overwrites for yargs options result
+ * @returns applicable yargs options in schema and overwrites
+ */
 export function getChoiceOption<
   S extends TLiteral | TUnion<TLiteral[]>,
   O extends Options = object,
