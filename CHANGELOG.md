@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.0.3](https://github.com/moontaiworks/yargs-typebox/compare/v0.0.2...v0.0.3) (2024-10-09)
+
+
+### Bug Fixes
+
+* correct paths for tsc-alias ([7c8ba8f](https://github.com/moontaiworks/yargs-typebox/commit/7c8ba8f909b5d09cb0bc5022eac87824eb8a8405))
+
 ## [0.0.2](https://github.com/moontaiworks/yargs-typebox/compare/v0.0.1...v0.0.2) (2024-10-09)
 
 ## [0.0.1](https://github.com/moontaiworks/yargs-typebox/compare/v0.0.0...v0.0.1) (2024-10-09)

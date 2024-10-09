@@ -5,7 +5,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Use typebox to define your yargs arguments.",
   "author": "moontai0724",
   "license": "MIT",
