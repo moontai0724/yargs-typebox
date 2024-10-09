@@ -30,14 +30,14 @@ it("should transform schemas of props in a TObject to yargs options", () => {
       type: "number",
       requiresArg: true,
       demandOption: true,
-      description: "page number",
+      describe: "page number",
     },
     size: {
       type: "number",
       requiresArg: false,
       demandOption: false,
       default: 10,
-      description: "page size",
+      describe: "page size",
     },
     query: {
       type: "string",
@@ -61,7 +61,7 @@ it("should transform schemas of props in a TObject to yargs options", () => {
       type: "boolean",
       requiresArg: true,
       demandOption: true,
-      description: "pretty print",
+      describe: "pretty print",
     },
   });
 });

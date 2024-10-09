@@ -45,14 +45,14 @@ const expectations = {
     type: "boolean",
     requiresArg: true,
     demandOption: true,
-    description: "pretty print",
+    describe: "pretty print",
   },
   number: {
     type: "number",
     requiresArg: false,
     demandOption: false,
     default: 10,
-    description: "page size",
+    describe: "page size",
   },
   string: {
     type: "string",
